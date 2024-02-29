@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: carst
- * Date: 17.02.2018
- * Time: 20:09
- */
 
 namespace Icinga\Module\Grafana\Controllers;
 
@@ -24,14 +18,12 @@ use ipl\Html\HtmlString;
 use ipl\Stdlib\Filter;
 use ipl\Web\Url;
 
-
 class IcingadbshowController extends IcingadbGrafanaController
 {
     /** @var bool */
     protected $showFullscreen;
     protected $host;
     protected $custvardisable = "grafana_graph_disable";
-
     public function init()
     {
         $this->assertPermission('grafana/showall');
@@ -40,17 +32,16 @@ class IcingadbshowController extends IcingadbGrafanaController
             = (bool)$this->_helper->layout()->showFullscreen;
         $this->host = $this->getParam('host');
         $this->config = Config::module('grafana')->getSection('grafana');
-        /**
-         * Name of the custom varibale to disable graph
-         */
+    /**
+             * Name of the custom varibale to disable graph
+             */
         $this->custvardisable = ($this->config->get('custvardisable', $this->custvardisable));
     }
 
     public function indexAction()
     {
         $this->disableAutoRefresh();
-
-				/*
+/*
         if (!$this->showFullscreen) {
             $this->getTabs()->add(
                 'graphs',
@@ -62,13 +53,16 @@ class IcingadbshowController extends IcingadbGrafanaController
 
             $this->getTabs()->extend(new PrintAction());
         }
-				*/
+                */
 
         $this->addControl(
             HtmlElement::create(
                 'h1',
                 null,
-                sprintf($this->translate('Performance graphs for %s'), $this->host)
+                sprintf(
+                    $this->translate('Performance graphs for %s'),
+                    $this->host
+                )
             )
         );
 
@@ -86,13 +80,13 @@ class IcingadbshowController extends IcingadbGrafanaController
         $this->object = $this->getHostObject($this->host);
         $varsFlat = CustomvarFlat::on($this->getDb());
         $this->applyRestrictions($varsFlat);
-
         $varsFlat
             ->columns(['flatname', 'flatvalue'])
             ->orderBy('flatname');
         $varsFlat->filter(Filter::equal('host.id', $this->object->id));
         $customVars = $this->getDb()->fetchPairs($varsFlat->assembleSelect());
-        if ($this->object->perfdata_enabled == "y"
+        if (
+            $this->object->perfdata_enabled == "y"
             || !(isset($customVars[$this->custvardisable])
                 && json_decode(strtolower($customVars[$this->custvardisable])) !== false)
         ) {
@@ -109,20 +103,18 @@ class IcingadbshowController extends IcingadbGrafanaController
             'host.state'
         ]);
         $query->filter(Filter::equal('host.name', $this->host));
-
         $this->applyRestrictions($query);
-
         foreach ($query as $service) {
             $this->object = $this->getServiceObject($service->name, $this->host);
             $varsFlat = CustomvarFlat::on($this->getDb());
             $this->applyRestrictions($varsFlat);
-
             $varsFlat
                 ->columns(['flatname', 'flatvalue'])
                 ->orderBy('flatname');
             $varsFlat->filter(Filter::equal('service.id', $service->id));
             $customVars = $this->getDb()->fetchPairs($varsFlat->assembleSelect());
-            if ($this->object->perfdata_enabled == "y"
+            if (
+                $this->object->perfdata_enabled == "y"
                 && !(isset($customVars[$this->custvardisable])
                     && json_decode(strtolower($customVars[$this->custvardisable])) !== false)
             ) {
@@ -144,7 +136,6 @@ class IcingadbshowController extends IcingadbGrafanaController
         $query->filter(Filter::equal('name', $host));
         $this->applyRestrictions($query);
         $host = $query->first();
-
         if ($host === null) {
             throw new NotFoundError(t('Host not found'));
         }
@@ -155,13 +146,10 @@ class IcingadbshowController extends IcingadbGrafanaController
     public function getServiceObject($service, $host)
     {
         $query = Service::on($this->getDb());
-
         $query->filter(Filter::equal('name', $service));
         $query->filter(Filter::equal('host.name', $host));
         $this->applyRestrictions($query);
-
         $service = $query->first();
-
         if ($service === null) {
             throw new NotFoundError(t('Service not found'));
         }

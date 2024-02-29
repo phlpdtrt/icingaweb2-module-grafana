@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: carst
@@ -12,14 +13,12 @@ use Icinga\Application\Icinga;
 use Icinga\Application\Modules\Module;
 use Icinga\Module\Grafana\ProvidedHook\Icingadb\IcingadbSupport;
 
-
 class Timeranges
 {
     private $urlparams;
     private $link;
     private $view;
-
-    static $timeRanges = array(
+    protected static $timeRanges = array(
         'Minutes' => array(
             '5m' => '5 minutes',
             '15m' => '15 minutes',
@@ -58,29 +57,21 @@ class Timeranges
             '1Y/Y' => 'Previous Year',
         )
     );
-
     public function __construct(array $array = array(), $link = "")
     {
         $this->urlparams = $array;
         $this->link = $link;
-
         $this->view = Icinga::app()->getViewRenderer()->view;
     }
 
     private function getTimerangeLink($rangeName, $timeRange)
     {
         $this->urlparams['timerange'] = $timeRange;
-
-        return $this->view->qlink(
-            $rangeName,
-            $this->link,
-            $this->urlparams,
-            array(
+        return $this->view->qlink($rangeName, $this->link, $this->urlparams, array(
                 'class' => 'action-link',
                 'data-base-target' => '_self',
                 'title' => 'Set timerange for graph(s) to ' . $rangeName
-            )
-        );
+            ));
     }
 
 
@@ -95,18 +86,22 @@ class Timeranges
     {
         $url = 'grafana/icingadbdashboard?';
 
-        $clockIcon = $this->view->qlink($timerange, 'dashboard/new-dashlet',
+        $clockIcon = $this->view->qlink(
+            $timerange,
+            'dashboard/new-dashlet',
             ['url' => $url . http_build_query($this->urlparams, '', '&', PHP_QUERY_RFC3986)],
-            ['icon' => 'clock', 'title' => 'Add graph to dashboard']);
-
+            ['icon' => 'clock', 'title' => 'Add graph to dashboard']
+        );
         $menu = '<table class="grafana-table"><tr>';
         $menu .= '<td>' . $clockIcon . '</td>';
         foreach (self::$timeRanges as $key => $mainValue) {
             $menu .= '<td><ul class="grafana-menu-navigation"><a class="main" href="#">' . $key . '</a>';
             $counter = 1;
             foreach ($mainValue as $subkey => $value) {
-                $menu .= '<li class="grafana-menu-n' . $counter . '">' . $this->getTimerangeLink($value,
-                        $subkey) . '</li>';
+                $menu .= '<li class="grafana-menu-n' . $counter . '">' . $this->getTimerangeLink(
+                    $value,
+                    $subkey
+                ) . '</li>';
                 $counter++;
             }
             $menu .= '</ul></td>';
@@ -114,16 +109,15 @@ class Timeranges
 
         $timerange = urldecode($timerange);
         $timerangeto = urldecode($timerangeto);
-
-        if($this->isValidTimeStamp($timerange)) {
+        if ($this->isValidTimeStamp($timerange)) {
             $d = new \DateTime();
-            $d->setTimestamp($timerange/1000);
+            $d->setTimestamp($timerange / 1000);
             $timerange = $d->format("Y-m-d H:i:s");
         }
 
-        if($this->isValidTimeStamp($timerangeto)) {
+        if ($this->isValidTimeStamp($timerangeto)) {
             $d = new \DateTime();
-            $d->setTimestamp($timerangeto/1000);
+            $d->setTimestamp($timerangeto / 1000);
             $timerangeto = $d->format("Y-m-d H:i:s");
         }
 

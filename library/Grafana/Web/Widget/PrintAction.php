@@ -26,7 +26,7 @@ class PrintAction implements Tabextension
                 'icon'      => 'print',
                 'target'    => '_blank',
                 'label'     => t('Print'),
-                'url'       => (htmlspecialchars_decode(Url::fromRequest()->getAbsoluteUrl())). '&showFullscreen=1',
+                'url'       => (htmlspecialchars_decode(Url::fromRequest()->getAbsoluteUrl())) . '&showFullscreen=1',
             ]
         );
     }

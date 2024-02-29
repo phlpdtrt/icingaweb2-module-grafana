@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: carst
@@ -19,11 +20,12 @@ use Icinga\Module\Icingadb\Model\Service;
 use ipl\Stdlib\Filter;
 use ipl\Web\Url;
 
-#[\AllowDynamicProperties]
 class IcingadbimgController extends IcingadbGrafanaController
 {
     protected $host;
+
     protected $service;
+
     protected $timerange;
     protected $myConfig;
     protected $myAuth;
@@ -49,7 +51,9 @@ class IcingadbimgController extends IcingadbGrafanaController
     protected $cacheTime;
     protected $defaultdashboarduid;
     protected $refresh                 = "yes";
+    protected $timerangeto;
 
+    protected $object;
 
     public function init()
     {
@@ -218,18 +222,18 @@ class IcingadbimgController extends IcingadbGrafanaController
         header('Pragma: public');
         if ($this->refresh == "yes") {
             header('Pragma: public');
-            header("Expires: ".gmdate("D, d M Y H:i:s", time() + $this->cacheTime)." GMT");
-            header('Cache-Control: max-age='.$this->cacheTime).', public';
+            header("Expires: " . gmdate("D, d M Y H:i:s", time() + $this->cacheTime) . " GMT");
+            header('Cache-Control: max-age=' . $this->cacheTime) . ', public';
         } else {
-            header("Expires: ".gmdate("D, d M Y H:i:s", time() + 365*86440)." GMT");
-            header('Cache-Control: max-age='. (365*86440));
+            header("Expires: " . gmdate("D, d M Y H:i:s", time() + 365 * 86440) . " GMT");
+            header('Cache-Control: max-age=' . (365 * 86440));
         }
         header("Content-type: image/png");
         if (! $res) {
             // set expire to now and max age to 1 minute
-            header("Expires: ".gmdate("D, d M Y H:i:s", time())." GMT");
-            header('Cache-Control: max-age='. 120);
-            $string = wordwrap($this->translate('Error'). ': ' . $imageHtml, 40, "\n");
+            header("Expires: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
+            header('Cache-Control: max-age=' . 120);
+            $string = wordwrap($this->translate('Error') . ': ' . $imageHtml, 40, "\n");
             $lines = explode("\n", $string);
             $im = @imagecreate($this->width, $this->height);
             $background_color = imagecolorallocate($im, 255, 255, 255); //white background
@@ -296,7 +300,8 @@ class IcingadbimgController extends IcingadbGrafanaController
             $serviceName = strtok($serviceName, ' ');
         }
 
-        if ($graphConfig->hasSection(strtok($serviceName, ' ')) == false
+        if (
+            $graphConfig->hasSection(strtok($serviceName, ' ')) == false
             && ($graphConfig->hasSection($serviceName) == false)
         ) {
             $serviceName = $serviceCommand;
@@ -361,7 +366,7 @@ class IcingadbimgController extends IcingadbGrafanaController
         if ($this->authentication == "token") {
             $curl_opts[CURLOPT_HTTPHEADER] = [
                 'Content-Type: application/json',
-                "Authorization: Bearer ". $this->apiToken
+                "Authorization: Bearer " . $this->apiToken
             ];
         } else {
             $curl_opts[CURLOPT_USERPWD] = "$this->myAuth";
@@ -373,7 +378,7 @@ class IcingadbimgController extends IcingadbGrafanaController
         $statusCode = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
 
         if ($res === false) {
-            $imageHtml .=$this->translate('Cannot fetch graph with curl') .': '. curl_error($curl_handle). '.';
+            $imageHtml .= $this->translate('Cannot fetch graph with curl') . ': ' . curl_error($curl_handle) . '.';
 
             //provide a hint for 'Failed to connect to ...: Permission denied'
             if (curl_errno($curl_handle) == 7) {

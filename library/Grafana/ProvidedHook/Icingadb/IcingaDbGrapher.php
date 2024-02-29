@@ -55,7 +55,9 @@ trait IcingaDbGrapher
     protected $dataSource = null;
     protected $accessMode = "proxy";
     protected $proxyTimeout = "5";
+
     protected $refresh = "no";
+
     protected $title;  //"<h2>Performance Graph</h2>";
     protected $custvardisable = "grafana_graph_disable";
     protected $custvarconfig = "grafana_graph_config";
@@ -67,7 +69,26 @@ trait IcingaDbGrapher
     protected $cacheTime = 300;
     protected $grafanaVersion = "0";
     protected $defaultdashboarduid;
+
     protected $object;
+
+    protected $permission;
+    /**
+     * @var mixed|null
+     */
+    protected $dashboard;
+    /**
+     * @var mixed|null
+     */
+    protected $dashboarduid;
+
+    protected $panelId;
+
+    protected $orgId;
+
+    protected $customVars;
+
+    protected $pngUrl;
 
     protected function init()
     {
@@ -207,12 +228,16 @@ trait IcingaDbGrapher
     {
         $this->graphConfig = Config::module('grafana', 'graphs');
 
-        if ($this->graphConfig->hasSection(strtok($serviceName, ' '))
-            && ($this->graphConfig->hasSection($serviceName) === false)) {
+        if (
+            $this->graphConfig->hasSection(strtok($serviceName, ' '))
+            && ($this->graphConfig->hasSection($serviceName) === false)
+        ) {
             $serviceName = strtok($serviceName, ' ');
         }
-        if ($this->graphConfig->hasSection(strtok($serviceName, ' ')) === false
-            && ($this->graphConfig->hasSection($serviceName) === false)) {
+        if (
+            $this->graphConfig->hasSection(strtok($serviceName, ' ')) === false
+            && ($this->graphConfig->hasSection($serviceName) === false)
+        ) {
             $serviceName = $serviceCommand;
             if ($this->graphConfig->hasSection($serviceCommand) === false && $this->defaultDashboard === 'none') {
                 return null;
@@ -220,13 +245,17 @@ trait IcingaDbGrapher
         }
 
         $this->dashboard = $this->getGraphConfigOption($serviceName, 'dashboard', $this->defaultDashboard);
+
         $this->dashboarduid = $this->getGraphConfigOption(
             $serviceName,
             'dashboarduid',
             $this->defaultdashboarduid
         );
+
         $this->panelId = $this->getGraphConfigOption($serviceName, 'panelId', $this->defaultDashboardPanelId);
+
         $this->orgId = $this->getGraphConfigOption($serviceName, 'orgId', $this->defaultOrgId);
+
         $this->customVars = $this->getGraphConfigOption($serviceName, 'customVars', '');
 
         if (Url::fromRequest()->hasParam('tr-from') && Url::fromRequest()->hasParam('tr-to')) {
@@ -346,7 +375,7 @@ trait IcingaDbGrapher
     {
         $this->object = $object;
         //$this->cacheTime = round($object->state->next_check - $object->state->last_update);
-				$this->cacheTime = 0;
+                $this->cacheTime = 0;
 
         if ($object instanceof Host) {
             $serviceName = $object->checkcommand_name;
@@ -383,13 +412,19 @@ trait IcingaDbGrapher
 
         $customvars = $this->getDb()->fetchPairs($varsFlat->assembleSelect());
 
-        if ($object->perfdata_enabled == "n" || (( isset($customvars[$this->custvardisable]) && json_decode(strtolower($customvars[$this->custvardisable])) !== false)) ) {
+        if (
+            $object->perfdata_enabled == "n" ||
+            (( isset($customvars[$this->custvardisable]) &&
+                json_decode(strtolower($customvars[$this->custvardisable])) !== false))
+        ) {
             return '';
         }
 
 
-        if (array_key_exists($this->custvarconfig, $customvars)
-            && !empty($customvars[$this->custvarconfig])) {
+        if (
+            array_key_exists($this->custvarconfig, $customvars)
+            && !empty($customvars[$this->custvarconfig])
+        ) {
             $graphConfiguation = $this->getGraphConf($customvars[$this->custvarconfig]);
         } else {
             $graphConfiguation = $this->getGraphConf($serviceName, $object->checkcommand_name);
@@ -457,9 +492,11 @@ trait IcingaDbGrapher
             $previewHtml = new HtmlDocument();
             $res = $this->getMyPreviewHtml($serviceName, $hostName, $previewHtml);
             //do not render URLs on error or if disabled
-            if (! $res
+            if (
+                ! $res
                 || $this->enableLink === "no"
-                || ! $this->permission->hasPermission('grafana/enablelink')) {
+                || ! $this->permission->hasPermission('grafana/enablelink')
+            ) {
                 $html->addHtml($previewHtml);
             } else {
                 $urlFormat = "%s://%s/d/%s/%s" .
