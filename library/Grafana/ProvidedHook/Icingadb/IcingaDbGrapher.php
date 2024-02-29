@@ -23,6 +23,7 @@ use ipl\Orm\Model;
 use ipl\Stdlib\Filter;
 use ipl\Web\Url;
 use ipl\Web\Widget\Link;
+use Icinga\Module\Grafana\Helpers\JwtToken;
 
 trait IcingaDbGrapher
 {
@@ -71,6 +72,10 @@ trait IcingaDbGrapher
     protected $defaultdashboarduid;
 
     protected $object;
+    protected $jwtIssuer = "https://localhost";
+    protected $jwtEnable = false;
+    protected $jwtUser;
+    protected $jwtExpires = 30;
 
     protected $permission;
     /**
@@ -198,6 +203,11 @@ trait IcingaDbGrapher
                 $this->auth = "";
             }
         }
+
+        $this->jwtIssuer = $this->config->get('jwtIssuer');
+        $this->jwtEnable = $this->config->get('jwtEnable', $this->jwtEnable);
+        $this->jwtExpires = $this->config->get('jwtExpires', $this->jwtExpires);
+        $this->jwtUser = $this->config->get('jwtUser', $this->permission->getUser()->getUsername());
     }
 
     public function has(Model $object): bool
@@ -348,6 +358,11 @@ trait IcingaDbGrapher
                 urlencode($this->timerange),
                 urlencode($this->timerangeto)
             );
+
+            if($this->jwtEnable) {
+                $authToken = JwtToken::create($this->jwtUser, time()+$this->jwtExpires, !empty($this->jwtIssuer)?$this->jwtIssuer:null, [ 'roles' => [ 'Viewer' ] ]);
+                $iFramesrc .= sprintf("&auth_token=%s", urlencode($authToken));
+            }
 
             $iframeHtml = Html::tag(
                 'iframe',
