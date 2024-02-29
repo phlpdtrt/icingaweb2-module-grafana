@@ -2,8 +2,6 @@
 
 namespace Icinga\Module\Grafana\Forms\Graph;
 
-//namespace Icinga\Module\Grafana\Forms\Config;
-
 use Icinga\Module\Grafana\Forms\Config\GeneralConfigForm;
 use Icinga\Module\Grafana\Helpers\Timeranges;
 use Icinga\Exception\AlreadyExistsException;

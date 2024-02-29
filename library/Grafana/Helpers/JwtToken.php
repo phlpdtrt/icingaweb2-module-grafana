@@ -2,8 +2,7 @@
 
 namespace Icinga\Module\Grafana\Helpers;
 
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+use Icinga\Module\Grafana\Vendor\JWT;
 
 class JwtToken
 {
