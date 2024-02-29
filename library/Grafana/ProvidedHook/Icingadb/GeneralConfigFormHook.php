@@ -9,7 +9,6 @@ use Icinga\Module\Grafana\Helpers\JwtToken;
 
 class GeneralConfigFormHook extends ConfigFormEventsHook
 {
-
     public function appliesTo(Form $form)
     {
         return $form instanceof GeneralConfigForm;

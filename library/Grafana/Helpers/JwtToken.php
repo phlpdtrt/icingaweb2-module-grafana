@@ -23,7 +23,7 @@ class JwtToken
         $privateKeyFile = JwtToken::JWT_PRIVATEKEY_FILE;
 
         $privateKey = openssl_pkey_get_private(
-            file_get_contents($privateKeyFile),
+            file_get_contents($privateKeyFile)
         );
 
         $payload = [
