@@ -1,3 +1,10 @@
+[![PHP Support](https://img.shields.io/badge/php-%3E%3D%207.4-777BB4?logo=PHP)](https://php.net/)
+[![tests](https://github.com/phlpdtrt/icingaweb2-module-grafana/actions/workflows/tests.yml/badge.svg)](https://github.com/phlpdtrt/icingaweb2-module-grafana/actions/workflows/tests.yml)
+
+
+# this is a fork from https://github.com/Mikesch-mp/icingaweb2-module-grafana
+
+
 # Grafana Module for Icinga Web 2
 
 #### Table of Contents
