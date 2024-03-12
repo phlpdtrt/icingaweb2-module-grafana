@@ -370,7 +370,7 @@ class GeneralConfigForm extends ConfigForm
                     'class' => 'autosubmit',
                 )
             );
-            if ($formData['grafana_jwtEnable']) {
+            if (isset($formData['grafana_jwtEnable']) && $formData['grafana_jwtEnable']) {
                 $this->addElement(
                     'number',
                     'grafana_jwtExpires',
